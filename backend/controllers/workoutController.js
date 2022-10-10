@@ -22,6 +22,19 @@ const getWorkout=async(req,res)=>{
 // create a new workout
 const createWorkout = async(req,res)=>{
     const {title, load, reps}=req.body
+    let emptyFeilds =[]
+    if(!title){
+        emptyFeilds.push("title")
+    }
+    if(!load){
+        emptyFeilds.push('load')
+    }
+    if(!reps){
+        emptyFeilds.push('reps')
+    }
+    if(emptyFeilds.length>0){
+        return res.status(400).json({error: "pls fill in all the feilds", emptyFeilds})
+    }
     try {
         const workout = await Workout.create({title, load, reps})
         await workout.save()

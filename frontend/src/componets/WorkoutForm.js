@@ -1,27 +1,25 @@
-import { useState } from 'react'
-import { useWorkoutsContext } from '../hooks/useWorkoutsContext'
+import { useContext, useState } from 'react'
+import { WorkoutContext } from '../context/workoutContext'
+// import { useWorkoutsContext } from '../hooks/useWorkoutsContext'
 
 const WorkoutForm = () => {
-  const { dispatch } = useWorkoutsContext()
+  const { dispatch } = useContext(WorkoutContext)
 
-//   const [title, setTitle] = useState('')
-//   const [load, setLoad] = useState('')
-//   const [reps, setReps] = useState('')
-const [workout,setWorkouts]=useState({
-    name:"",
+const [workouts,setWorkouts]=useState({
+    title:"",
     load:"",
     reps:"",
 })
   const [error, setError] = useState(null)
+  const [emptyFeilds,setEmptyFeilds] =useState([])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
-    const workout = {title, load, reps}
+    console.log({workouts})
     
-    const response = await fetch('/api/workouts', {
+    const response = await fetch('http://localhost:4000/api/workouts', {
       method: 'POST',
-      body: JSON.stringify(workout),
+      body: JSON.stringify(workouts),
       headers: {
         'Content-Type': 'application/json'
       }
@@ -30,16 +28,24 @@ const [workout,setWorkouts]=useState({
 
     if (!response.ok) {
       setError(json.error)
+      console.log(json)
+      setEmptyFeilds(json.emptyFeilds)
+
     }
     if (response.ok) {
       setError(null)
-      setTitle('')
-      setLoad('')
-      setReps('')
+      setEmptyFeilds([])
+      setWorkouts({
+        title:'',
+        load:"",
+        reps:""
+      })
+      
       dispatch({type: 'CREATE_WORKOUT', payload: json})
     }
 
   }
+  const onChange=(e)=>{setWorkouts({...workouts,[e.target.name]:e.target.value})}
 
   return (
     <form className="create" onSubmit={handleSubmit}> 
@@ -47,26 +53,29 @@ const [workout,setWorkouts]=useState({
 
       <label>Excersize Title:</label>
       <input 
+      className={emptyFeilds.includes('title')?'error':''}
         type="text" 
         name="title"
-        onChange={(e) => setTitle(e.target.value)} 
-        value={title}
+        onChange={onChange} 
+        value={workouts.title}
       />
 
       <label>Load (in kg):</label>
       <input 
+      className={emptyFeilds.includes('load')?'error':''}
         type="number" 
         name="load"
-        onChange={(e) => setLoad(e.target.value)} 
-        value={load}
+        onChange={onChange} 
+        value={workouts.load}
       />
 
       <label>Number of Reps:</label>
       <input 
+      className={emptyFeilds.includes('reps')?'error':''}
         type="number" 
         name="reps"
-        onChange={(e) => setReps(e.target.value)} 
-        value={reps} 
+        onChange={onChange} 
+        value={workouts.reps} 
       />
 
       <button>Add Workout</button>
