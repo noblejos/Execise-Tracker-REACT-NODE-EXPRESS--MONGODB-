@@ -1,9 +1,11 @@
 import { useContext, useState } from 'react'
+import { AuthContext } from '../context/AuthContext'
 import { WorkoutContext } from '../context/workoutContext'
 // import { useWorkoutsContext } from '../hooks/useWorkoutsContext'
 
 const WorkoutForm = () => {
   const { dispatch } = useContext(WorkoutContext)
+  const {user} =useContext(AuthContext)
 
 const [workouts,setWorkouts]=useState({
     title:"",
@@ -17,11 +19,12 @@ const [workouts,setWorkouts]=useState({
     e.preventDefault()
     console.log({workouts})
     
-    const response = await fetch('http://localhost:4000/api/workouts', {
+    const response = await fetch('https://graceful-worm-beret.cyclic.app/api/workouts', {
       method: 'POST',
       body: JSON.stringify(workouts),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: "Bearer " + user.token,
       }
     })
     const json = await response.json()
